@@ -1,3 +1,3 @@
-# react-boiler-plate
+# shopping-mall-website
 
 react / typescript / redux / express / mongoDB
