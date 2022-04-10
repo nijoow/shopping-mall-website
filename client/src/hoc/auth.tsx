@@ -3,6 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { auth } from "../_action/user_action";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../_reducers";
+
+export interface UserDataProps {
+  _id: string;
+}
 export default function (
   SpecificComponent: any,
   option: boolean | null = false,
@@ -32,7 +36,7 @@ export default function (
       dispatch(auth());
     }, [userData]);
 
-    return <SpecificComponent />;
+    return <SpecificComponent userData={userData} />;
   }
   return AuthenticationCheck;
 }

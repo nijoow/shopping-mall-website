@@ -1,24 +1,63 @@
 import Auth from "../../../hoc/auth";
-import { useState } from "react";
+import React, { useState } from "react";
 import FileUpload from "../utils/FileUpload";
+import axios from "axios";
+import { UserDataProps } from "../../../hoc/auth";
 const categories = [
   { key: 1, value: "outer" },
   { key: 2, value: "top" },
   { key: 3, value: "pants" },
   { key: 4, value: "etc" },
 ];
-function UploadProductPage() {
+export interface fileUploadProps {
+  (param: any): void;
+}
+function UploadProductPage({ userData }: { userData: UserDataProps }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
   const [category, setCategory] = useState("");
-
+  const [thumbnail, setThumnail] = useState<Blob>();
+  const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!name || !description || !price || !thumbnail) {
+      return alert("모든 값을 입력해주세요");
+    }
+    const formData = new FormData();
+    const config = {
+      headers: { "content-type": "multipart/form-data" },
+    };
+    formData.append("file", thumbnail);
+    axios.post("/api/products/image", formData, config).then((response) => {
+      if (response.data.success) {
+        const body = {
+          writer: userData._id,
+          name,
+          description,
+          price,
+          category,
+          thumbnailUrl: response.data.filePath,
+          image: null,
+        };
+        axios.post("/api/products", body).then((response) => {
+          if (response.data.success) {
+            alert("업로드 성공");
+          } else {
+            alert("업로드 실패");
+          }
+        });
+      } else {
+        alert("이미지 업로드 실패");
+      }
+    });
+  };
   return (
     <div className="min-h-screen flex-row items-center justify-center text-gray-900 py-40">
       <div className="max-w-md w-full space-y-8 m-auto">
         <div className="font-extrabold text-3xl">Product Upload</div>
-        <FileUpload />
-        <form>
+
+        <form onSubmit={submitHandler}>
+          <FileUpload setThumnailFunc={(newImage) => setThumnail(newImage)} />
           <label>Name</label>
           <input
             id="name"
